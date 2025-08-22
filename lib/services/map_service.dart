@@ -4,6 +4,9 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:path_provider/path_provider.dart';
 
 class MapService {
+  // Public getters for offline map usage
+  String? get currentAreaKey => _currentAreaKey;
+  mapbox.TileStore? get tileStore => _tileStore;
   static final MapService _instance = MapService._internal();
   factory MapService() => _instance;
   MapService._internal();
@@ -84,9 +87,9 @@ class MapService {
         geometry: area['geometry'],
         descriptorsOptions: [
           mapbox.TilesetDescriptorOptions(
-            styleURI: mapbox.MapboxStyles.SATELLITE_STREETS,
-            minZoom: 0,
-            maxZoom: 14,
+            styleURI: mapbox.MapboxStyles.LIGHT,
+            minZoom: 4,
+            maxZoom: 10,
           ),
         ],
         acceptExpired: true,
@@ -100,7 +103,7 @@ class MapService {
       );
 
       await _offlineManager?.loadStylePack(
-        mapbox.MapboxStyles.SATELLITE_STREETS,
+        mapbox.MapboxStyles.LIGHT,
         stylePackLoadOptions,
         (progress) {
           print('Style pack progress: ${progress.completedResourceCount}/${progress.requiredResourceCount}');
@@ -143,6 +146,7 @@ class MapService {
   // Get current map center
   mapbox.Point? getCurrentMapCenter() {
     if (_currentAreaKey != null && _hikingAreas.containsKey(_currentAreaKey)) {
+      print('Current area: $_currentAreaKey, Center: ${_hikingAreas[_currentAreaKey]!['center']}');
       return _hikingAreas[_currentAreaKey]!['center'] as mapbox.Point;
     }
     return null;

@@ -97,40 +97,65 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    final provider = Provider.of<AppProvider>(context);
-    // Update path when gpsBucket changes
-    _updatePathFromProvider();
-    if (_mapController != null && _pathPoints.isNotEmpty) {
-      _updateAnnotations();
-      _smoothUpdateCamera(_pathPoints.last);
-    }
+@override
+Widget build(BuildContext context) {
+  return Consumer2<AppProvider, MapService>(
+    builder: (context, provider, mapService, child) {
+      // Update path points from provider
+      _updatePathFromProvider();
 
-    // Get initial map center from MapService or default to first GPS point
-    final mapCenter = Provider.of<MapService>(context, listen: false).getCurrentMapCenter() ??
-        (_pathPoints.isNotEmpty
-            ? _pathPoints.first
-            : mapbox.Point(coordinates: mapbox.Position(79.8612, 6.9271)));
-
-    return Scaffold(
-      body: mapbox.MapWidget(
-        key: const ValueKey('mapWidget'),
-        styleUri: mapbox.MapboxStyles.SATELLITE_STREETS,
-        cameraOptions: mapbox.CameraOptions(
-          center: mapCenter,
-          zoom: 10.0,
-        ),
-        onMapCreated: (controller) async {
-          _mapController = controller;
-          _circleAnnotationManager = await controller.annotations.createCircleAnnotationManager();
-          _polylineAnnotationManager = await controller.annotations.createPolylineAnnotationManager();
+      // Only update annotations and camera if map is initialized and path is not empty
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (_mapController != null && _pathPoints.isNotEmpty) {
           await _updateAnnotations();
+          await _smoothUpdateCamera(_pathPoints.last);
+        }
+      });
+
+  final mapCenter = mapService.getCurrentMapCenter();
+  final currentAreaKey = mapService.currentAreaKey;
+  print('MapScreen build: currentAreaKey=$currentAreaKey, mapCenter=${mapCenter?.coordinates}');
+
+      return FutureBuilder<bool>(
+        future: currentAreaKey != null
+            ? mapService.isMapDownloaded(currentAreaKey)
+            : Future.value(false),
+        builder: (context, snapshot) {
+          if (currentAreaKey == null || !(snapshot.data ?? false)) {
+            print('MapScreen: No offline map selected or downloaded.');
+            return Scaffold(
+              body: Center(
+                child: Text(
+                  'No offline map selected or downloaded. Please select and download a map from Saved Maps.',
+                ),
+              ),
+            );
+          }
+          print('MapScreen: Building MapWidget with center=${mapCenter?.coordinates}');
+          return Scaffold(
+            body: mapbox.MapWidget(
+              key: const ValueKey('mapWidget'),
+              styleUri: mapbox.MapboxStyles.LIGHT,
+              cameraOptions: mapbox.CameraOptions(
+                center: mapCenter!,
+                zoom: 10.0,
+              ),
+              onMapCreated: (controller) async {
+                print('MapScreen: MapWidget created');
+                _mapController = controller;
+                _circleAnnotationManager =
+                    await controller.annotations.createCircleAnnotationManager();
+                _polylineAnnotationManager =
+                    await controller.annotations.createPolylineAnnotationManager();
+                await _updateAnnotations();
+              },
+            ),
+          );
         },
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   @override
   void dispose() {

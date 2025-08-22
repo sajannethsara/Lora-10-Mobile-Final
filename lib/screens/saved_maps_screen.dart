@@ -58,7 +58,12 @@ class _SavedMapsScreenState extends State<SavedMapsScreen> {
   void _selectMap(String areaKey) {
     final mapService = Provider.of<MapService>(context, listen: false);
     mapService.setCurrentArea(areaKey);
-    setState(() {}); // Trigger rebuild to update highlight
+    final selectedArea = mapService.getHikingAreas().firstWhere(
+      (a) => a['key'] == areaKey,
+      orElse: () => {},
+    );
+    debugPrint('Selected area: ${selectedArea['name'] ?? ''} (${selectedArea['key'] ?? ''})');
+    setState(() {}); // Refresh UI to show selection
   }
 
   @override

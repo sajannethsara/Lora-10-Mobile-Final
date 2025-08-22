@@ -24,9 +24,9 @@ class _ConnectScreenState extends State<ConnectScreen> {
 
     final bleService = Provider.of<BleService>(context, listen: false);
     final appProvider = Provider.of<AppProvider>(context, listen: false);
-    appProvider.setConnected(true);
-    appProvider.feedDummyData(); // For testing purposes
-    Navigator.pushReplacementNamed(context, '/home');
+    // appProvider.setConnected(true);
+    // appProvider.feedDummyData(); // For testing purposes
+    // Navigator.pushReplacementNamed(context, '/home');
     try {
       final results = await bleService.scan();
       print(results);
@@ -101,13 +101,13 @@ class _ConnectScreenState extends State<ConnectScreen> {
                     itemCount: _devices.length,
                     itemBuilder: (context, index) {
                       final device = _devices[index].device;
-                      final isTargetDevice = device.name == BleService.targetDeviceName;
+                      // final isTargetDevice = device.name == BleService.targetDeviceName;
 
                       return ListTile(
-                        title: Text(device.name.isEmpty ? 'Unknown Device' : device.name),
+                        title: Text(device.name.isEmpty ? 'Lora10 UserDevice' : device.name),
                         subtitle: Text(device.id.toString()),
                         trailing: ElevatedButton(
-                          onPressed: isTargetDevice ? () => _connectToDevice(device) : null,
+                          onPressed: () => _connectToDevice(device),
                           child: const Text('Connect'),
                         ),
                       );
