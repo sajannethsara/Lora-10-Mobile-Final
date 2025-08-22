@@ -24,8 +24,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
 
     final bleService = Provider.of<BleService>(context, listen: false);
     final appProvider = Provider.of<AppProvider>(context, listen: false);
-    // appProvider.setConnected(true);
-    // appProvider.feedDummyData(); // For testing purposes
+    // appProvider.setConnected(true); // For testing purposes
     // Navigator.pushReplacementNamed(context, '/home');
     try {
       final results = await bleService.scan();
@@ -67,6 +66,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
         appProvider.setConnected(true);
         // Navigate to HomeScreen
         Navigator.pushReplacementNamed(context, '/home');
+        // appProvider.feedDummyData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Connection failed')),
