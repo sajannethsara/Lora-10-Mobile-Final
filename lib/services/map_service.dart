@@ -153,7 +153,6 @@
 //   }
 // }
 
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -185,9 +184,9 @@ class MapService extends ChangeNotifier {
             [79.92, 6.85],
             [79.92, 7.00],
             [79.80, 7.00],
-            [79.80, 6.85]
-          ]
-        ]
+            [79.80, 6.85],
+          ],
+        ],
       },
     },
     'sinhartop': {
@@ -201,25 +200,45 @@ class MapService extends ChangeNotifier {
             [80.55, 6.38],
             [80.55, 6.45],
             [80.45, 6.45],
-            [80.45, 6.38]
-          ]
-        ]
+            [80.45, 6.38],
+          ],
+        ],
+      },
+    },
+    'uom': {
+      'name': 'University of Moratuwa',
+      'center': mapbox.Point(coordinates: mapbox.Position(79.9585, 6.9271)),
+      'geometry': {
+        'type': 'Polygon',
+        'coordinates': [
+          [
+            [79.95, 6.90],
+            [80.00, 6.90],
+            [80.00, 6.95],
+            [79.95, 6.95],
+            [79.95, 6.90],
+          ],
+        ],
       },
     },
   };
 
-  // Initialize Mapbox and TileStore
+  // Initialize Mapbox and TileStore 6.797830893105178, 79.90012066335636
   Future<void> init() async {
     try {
       await dotenv.load(fileName: ".env");
       final accessToken = dotenv.env['MAPBOX_ACCESS_TOKEN'];
       if (accessToken == null || accessToken.isEmpty) {
-        throw Exception('Mapbox access token is missing or invalid in .env file');
+        throw Exception(
+          'Mapbox access token is missing or invalid in .env file',
+        );
       }
       mapbox.MapboxOptions.setAccessToken(accessToken);
       _offlineManager = await mapbox.OfflineManager.create();
       final directory = await getApplicationDocumentsDirectory();
-      _tileStore = await mapbox.TileStore.createAt(Uri.file('${directory.path}/mapbox_tiles'));
+      _tileStore = await mapbox.TileStore.createAt(
+        Uri.file('${directory.path}/mapbox_tiles'),
+      );
       print('MapService initialized');
     } catch (e) {
       print('MapService init error: $e');
@@ -254,7 +273,8 @@ class MapService extends ChangeNotifier {
       );
 
       final stylePackLoadOptions = mapbox.StylePackLoadOptions(
-        glyphsRasterizationMode: mapbox.GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY,
+        glyphsRasterizationMode:
+            mapbox.GlyphsRasterizationMode.IDEOGRAPHS_RASTERIZED_LOCALLY,
         metadata: {"tag": areaKey},
         acceptExpired: false,
       );
@@ -263,17 +283,19 @@ class MapService extends ChangeNotifier {
         mapbox.MapboxStyles.LIGHT,
         stylePackLoadOptions,
         (progress) {
-          print('Style pack progress: ${progress.completedResourceCount}/${progress.requiredResourceCount}');
+          print(
+            'Style pack progress: ${progress.completedResourceCount}/${progress.requiredResourceCount}',
+          );
         },
       );
 
-      await _tileStore?.loadTileRegion(
-        tileRegionId,
-        tileRegionLoadOptions,
-        (progress) {
-          print('Tile region progress: ${progress.completedResourceCount}/${progress.requiredResourceCount}');
-        },
-      );
+      await _tileStore?.loadTileRegion(tileRegionId, tileRegionLoadOptions, (
+        progress,
+      ) {
+        print(
+          'Tile region progress: ${progress.completedResourceCount}/${progress.requiredResourceCount}',
+        );
+      });
 
       print('Map for ${area['name']} downloaded successfully');
       return true;
@@ -288,7 +310,8 @@ class MapService extends ChangeNotifier {
     if (_tileStore == null) return false;
     try {
       final regions = await _tileStore?.allTileRegions();
-      return regions?.any((region) => region.id == '$areaKey-tile-region') ?? false;
+      return regions?.any((region) => region.id == '$areaKey-tile-region') ??
+          false;
     } catch (e) {
       print('Check map downloaded error: $e');
       return false;

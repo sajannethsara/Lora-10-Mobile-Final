@@ -253,7 +253,7 @@ class _MapScreenState extends State<MapScreen> {
           mapbox.PolylineAnnotationOptions(
             geometry: mapbox.LineString(coordinates: _pathPoints.map((p) => p.coordinates).toList()),
             lineColor: 0xFF0000FF, // Blue
-            lineWidth: 4.0,
+            lineWidth: 2.0,
           ),
         );
       } else if (_polylineAnnotationManager != null && _pathAnnotation != null) {

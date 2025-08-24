@@ -353,7 +353,7 @@ class BleService {
   static final Guid gpsDataUuid = Guid('12345678-1234-5678-1234-56789abc0203');
   static final Guid gpsNotifyUuid = Guid('12345678-1234-5678-1234-56789abc0204');
 
-  static final Guid writeMessageUuid = Guid('12345678-1234-5678-1234-56789abc0205');
+  static final Guid writeMessageUuid = Guid('12345678-1234-5678-1234-56789abcffff');
 
   // Connection state tracking
   StreamSubscription? _connectionStateSubscription;
@@ -617,6 +617,7 @@ class BleService {
 
   // Send a message to the IoT device
   Future<bool> sendMessage(String message) async {
+    print('Service: $_service, Device: $device, Connected: $_isConnected');
     if (_service == null || device == null || !_isConnected) return false;
 
     try {
